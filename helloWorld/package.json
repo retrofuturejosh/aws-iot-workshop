@@ -1,0 +1,15 @@
+{
+  "name": "helloWorld",
+  "version": "1.0.0",
+  "description": "",
+  "main": "helloGreengrass.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy-sam": "bash './deploy_hello_greengrass.sh'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

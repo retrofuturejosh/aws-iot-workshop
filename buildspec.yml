@@ -1,0 +1,11 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - cd helloWorld && npm install
+      - cd ../deltas && npm install
+      - npm run setup
+  build:
+    commands:
+      - cd ../helloWorld && npm run deploy-sam
+      - cd ../deltas && npm run deploy-sam

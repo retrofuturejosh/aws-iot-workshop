@@ -1,0 +1,109 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Resources:
+  MyApi:
+    Name: IoT-Workshop
+    Type: AWS::Serverless::Api
+    Properties:
+        StageName: v1
+        DefinitionBody:
+            swagger: 2.0
+            info:
+              title:
+                Ref: AWS::StackName
+            paths:
+              "/device/{deviceID}":
+                get:
+                  parameters:
+                    - in: path
+                      name: deviceID
+                      required: true
+                      schema:
+                        type: string
+                      description: The device ID
+                  x-amazon-apigateway-integration:
+                    httpMethod: POST
+                    type: aws_proxy
+                    uri:
+                      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getDevice.Arn}/invocations
+                  responses:
+                    '200':
+                      description: A JSON of device state
+                      content:
+                        application/json:
+                          schema:
+                            type: object
+                            properties:
+                              isOn:
+                                type: integer
+                              dimLevel:
+                                type: string
+                put:
+                  parameters:
+                    - in: path
+                      name: deviceID
+                      required: true
+                      schema:
+                        type: string
+                      description: The device ID
+                  requestBody:
+                    required: true
+                    content:
+                      application/json:
+                        schema:
+                          type: object
+                          properties:
+                            isOn:
+                              type: integer
+                            dimLevel:
+                              type: string
+                  x-amazon-apigateway-integration:
+                    httpMethod: POST
+                    type: aws_proxy
+                    uri:
+                      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateDeviceState.Arn}/invocations
+                  responses:
+                    '200':
+                      description: A JSON of updated device state
+                      content:
+                        application/json:
+                          schema:
+                            type: object
+                            properties:
+                              isOn:
+                                type: integer
+                              dimLevel:
+                                type: string
+
+  getDevice:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/getDevice.handler
+      Runtime: nodejs8.10
+      CodeUri: ./
+      Policies:
+        - AWSIoTDataAccess
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /device/{deviceID}
+            Method: GET
+            RestApiId:
+                Ref: MyApi
+  updateDeviceState:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/updateDeviceState.handler
+      Runtime: nodejs8.10
+      CodeUri: ./
+      Policies:
+        - AWSIoTDataAccess
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /device/{deviceID}
+            Method: PUT
+            RestApiId:
+                Ref: MyApi

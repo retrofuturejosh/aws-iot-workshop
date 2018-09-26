@@ -5,15 +5,16 @@
   "main": "commands.js",
   "dependencies": {
     "aws-iot-device-sdk": "^2.2.1",
-    "aws-sdk": "^2.321.0",
     "axios": "^0.18.0",
     "chalk": "^2.4.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "aws-sdk": "^2.322.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "setup": "node services/setup.js",
-    "deploy-sam": "bash './deploy_lambda.sh'"
+    "deploy-sam": "bash 'scripts/deploy_lambda.sh'"
   },
   "author": "",
   "license": "ISC"

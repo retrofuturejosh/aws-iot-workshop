@@ -12,6 +12,7 @@ async function runSetup() {
   let key = certRes.keyPair.PrivateKey;
   let cert = certRes.certificatePem;
   let certArn = certRes.certificateArn;
+  console.log('Current working directory is ', process.cwd());
   fs.mkdirSync('./certs');
   fs.writeFileSync('./certs/key.pem', key);
   fs.writeFileSync('./certs/cert.pem', cert);
@@ -20,7 +21,8 @@ async function runSetup() {
     policy.policyName,
     certArn
   );
-  let rootSetup = await getCARoot();
+  let rootCA = await getCARoot();
+  fs.writeFileSync('./certs/root-CA.pem', rootCA);
   let hostSetup = await iotService.getIoTEndpoint();
   fs.writeFileSync('./certs/host', hostSetup.endpointAddress);
 }
@@ -32,7 +34,7 @@ async function getCARoot() {
     );
     let rootCA = caRes.data;
     console.log('successfully got ca-root');
-    fs.writeFileSync('./certs/root-CA.pem', rootCA);
+    return rootCA;
   } catch (err) {
     console.log('error getting ca root', err, err.stack);
   }

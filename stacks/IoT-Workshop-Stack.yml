@@ -7,11 +7,14 @@ Parameters:
     Type: String
     Description: Unique name for S3 bucket
 Resources:
+# Versioned bucket for CodePipeline
   S3BuildBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
       BucketName: !Ref S3BucketName
+
+# IAM Role for CodePipeline
   CodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
@@ -75,6 +78,7 @@ Resources:
                     - "codebuild:StartBuild"
                   Resource: "*"
 
+# IAM Role for CodeBuild
   CodeBuildRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -117,10 +121,11 @@ Resources:
                   - "cloudformation:*"
                   - "iam:*"
                   - "lambda:*"
+                  - "iot:*"
                 Resource:
                   - "*"
 
-  # build sam resources
+# CodeBuild Project to build SAM resources
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -142,7 +147,7 @@ Resources:
         BuildSpec: buildspec.yml
       TimeoutInMinutes: 10
 
-
+# Pipeline
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -183,111 +188,119 @@ Resources:
         Type: S3
         Location: !Ref S3BuildBucket
 
-  # InstanceSecurityGroup:
-  #   Type: AWS::EC2::SecurityGroup
-  #   Properties:
-  #     GroupDescription: Open ports 22, 8883, and 8443
-  #     SecurityGroupIngress:
-  #     - IpProtocol: tcp
-  #       FromPort: '22'
-  #       ToPort: '22'
-  #       CidrIp: 0.0.0.0/0
-  #     - IpProtocol: tcp
-  #       FromPort: '8883'
-  #       ToPort: '8883'
-  #       CidrIp: 0.0.0.0/0
-  #     - IpProtocol: tcp
-  #       FromPort: '8443'
-  #       ToPort: '8443'
-  #       CidrIp: 0.0.0.0/0
+# Security Group for EC2 Instance
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open ports 22, 8883, and 8443
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '8883'
+        ToPort: '8883'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '8443'
+        ToPort: '8443'
+        CidrIp: 0.0.0.0/0
 
-  # EC2InstanceRole:
-  #   Type: "AWS::IAM::Role"
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         -
-  #           Effect: "Allow"
-  #           Principal:
-  #             Service:
-  #               - "ec2.amazonaws.com"
-  #           Action:
-  #             - "sts:AssumeRole"
-  #     Path: "/"
-  #     Policies:
-  #       -
-  #         PolicyName: IoTWorkshopPolicy
-  #         PolicyDocument:
-  #           Version: "2012-10-17"
-  #           Statement:
-  #             -
-  #               Effect: Allow
-  #               Action:
-  #                 - "iam:*",
-  #                 - "greengrass:*",
-  #                 - "iot:*",
-  #                 - "s3:*",
-  #                 - "apigateway:*",
-  #                 - "codedeploy:*",
-  #                 - "lambda:*",
-  #                 - "codepipeline:*",
-  #                 - "iotanalytics:*",
-  #                 - "codebuild:*"
-  #               Resource: "*"
+# IAM Role for EC2 Instance
+  EC2InstanceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        -
+          PolicyName: IoTWorkshopPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: Allow
+                Action:
+                  - "iam:*"
+                  - "greengrass:*"
+                  - "iot:*"
+                  - "s3:*"
+                  - "apigateway:*"
+                  - "codedeploy:*"
+                  - "lambda:*"
+                  - "codepipeline:*"
+                  - "iotanalytics:*"
+                  - "codebuild:*"
+                Resource: "*"
 
-  # EC2InstanceProfile:
-  #   Type: AWS::IAM::InstanceProfile
-  #   Properties:
-  #     Roles:
-  #       - !Ref EC2InstanceRole
+# Instance Profile with Role attached for EC2
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2InstanceRole
 
-  # EC2Instance:
-  #   Type: AWS::EC2::Instance
-  #   Properties:
-  #     IamInstanceProfile: !Ref EC2InstanceProfile
-  #     KeyName: !Ref EC2KeyName
-  #     SecurityGroups:
-  #     - !Ref InstanceSecurityGroup
-  #     InstanceType: t2.micro
-  #     ImageId: ami-04681a1dbd79675a5
-  #     Tags:
-  #     -
-  #       Key: "Name"
-  #       Value: "IoT-Workshop"
-  #     UserData:
-  #       Fn::Base64:
-  #         !Sub |
-  #           #!/bin/bash -xe
-  #           # update yum
-  #           adduser --system ggc_user
-  #           groupadd --system ggc_group
-  #           yum -y update
-  #           cd /
-  #           curl https://raw.githubusercontent.com/tianon/cgroupfs-mount/951c38ee8d802330454bdede20d85ec1c0f8d312/cgroupfs-mount > cgroupfs-mount.sh
-  #           chmod +x cgroupfs-mount.sh
-  #           bash /cgroupfs-mount.sh
-  #           # download node
-  #           curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
-  #           # install node
-  #           yum -y install nodejs
-  #           # install git
-  #           yum -y install git
-  #           # create folder for files
-  #           mkdir iot-workshop
-  #           cd iot-workshop
-  #           # clone greengrass-setup repo
-  #           git clone https://github.com/retrofuturejosh/greengrass-node-toolkit.git
-  #           cd greengrass-node-toolkit
-  #           # run greengrass-setup
-  #           npm install
-  #           GROUP_NAME=demoGroup CORE_NAME=demoCore npm run create-group
-  #           curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-  #           export NVM_DIR="$HOME/.nvm"
-  #           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  #           [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-  #           nvm install 6.10
-  #           nvm use 6.10
-  #           nodepath=$(nvm which node)
-  #           cp $nodepath /usr/bin/nodejs6.10
-  #           npm run start-greengrass
+# Free Tier EC2 Instance
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      KeyName: !Ref EC2KeyName
+      SecurityGroups:
+      - !Ref InstanceSecurityGroup
+      InstanceType: t2.micro
+      ImageId: ami-04681a1dbd79675a5
+      Tags:
+      -
+        Key: "Name"
+        Value: "IoT-Workshop"
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -xe
+            # update yum
+            adduser --system ggc_user
+            groupadd --system ggc_group
+            yum -y update
+            cd /
+            curl https://raw.githubusercontent.com/tianon/cgroupfs-mount/951c38ee8d802330454bdede20d85ec1c0f8d312/cgroupfs-mount > cgroupfs-mount.sh
+            chmod +x cgroupfs-mount.sh
+            bash /cgroupfs-mount.sh
+            # download node
+            curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
+            # install node
+            yum -y install nodejs
+            # install git
+            yum -y install git
+            # create folder for files
+            mkdir iot-workshop
+            cd iot-workshop
+            # clone greengrass-setup repo
+            git clone https://github.com/retrofuturejosh/greengrass-node-toolkit.git
+            cd greengrass-node-toolkit
+            # run greengrass-setup
+            npm install
+            # create greengrass group
+            GROUP_NAME=demoGroup CORE_NAME=demoCore npm run create-group
+            # download node 6.10 via NVM for greengrass runtime
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            nvm install 6.10
+            nvm use 6.10
+            # move node to /usr/bind and change name to nodejs6.10
+            nodepath=$(nvm which node)
+            cp $nodepath /usr/bin/nodejs6.10
+            # run setup-greengrass script
+            npm run setup-greengrass

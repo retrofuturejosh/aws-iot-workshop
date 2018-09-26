@@ -5,7 +5,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       FunctionName: resolveDeltas
-      Handler: commands.handler
+      Handler: index.handler
       Runtime: nodejs6.10
       CodeUri: './'
       AutoPublishAlias: greengrass

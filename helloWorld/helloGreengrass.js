@@ -1,7 +1,6 @@
 /*
  * Copyright 2010-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  */
-
 /*
  * Demonstrates a simple publish to a topic using Greengrass Core NodeJS SDK
  * This lambda function will retrieve underlying platform information and send

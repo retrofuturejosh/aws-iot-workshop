@@ -11,12 +11,12 @@ const thingShadow = awsIot.thingShadow({
 });
 
 function listenForDeltas() {
-  thingShadow.register('myLight', () => {
-    console.log('registered myLight');
+  thingShadow.register(process.env.DEVICE_NAME, () => {
+    console.log(`Registered to ${process.env.DEVICE_NAME}`);
   });
   thingShadow.on('delta', (thingName, stateObject) => {
     console.log(
-      `received delta on ${thingName}: \n`,
+      `Received delta on ${thingName}: \n`,
       JSON.stringify(stateObject)
     );
     resolveDelta(thingName, stateObject.state);
@@ -26,7 +26,7 @@ function listenForDeltas() {
 function resolveDelta(thing, updatedState) {
   let newState = { state: { reported: updatedState } };
   let token = thingShadow.update(thing, newState);
-  console.log('updated state');
+  console.log(`Updated state: \n ${JSON.stringify(newState)}`);
 }
 
 listenForDeltas();
@@ -36,4 +36,3 @@ exports.handler = function handler(event, context) {
   console.log(event);
   console.log(context);
 };
-

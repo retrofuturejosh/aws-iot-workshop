@@ -1,0 +1,29 @@
+{
+  "name": "iot-workshop",
+  "version": "1.0.0",
+  "description": "AWS IoT Workshop",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test",
+    "deploy-project": "bash ./scripts/package_deploy_project.sh",
+    "upload-template": "bash ./scripts/upload_stack.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/retrofuturejosh/aws-iot-workshop.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/retrofuturejosh/aws-iot-workshop/issues"
+  },
+  "homepage": "https://github.com/retrofuturejosh/aws-iot-workshop#readme",
+  "dependencies": {
+    "chai": "^4.2.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.323.0",
+    "sinon": "^6.3.4"
+  }
+}

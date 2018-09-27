@@ -1,38 +1,18 @@
 const { expect } = require('chai');
-const aws = require('aws-sdk');
 
-const IoTDataService = require('../api/services/iotData');
+const {
+  iotDataService,
+  getThingShadowStub,
+  updateThingShadowStub
+} = require('./api.stubs.spec');
 const expectedResults = require('./expectedResults');
-const { stub } = require('sinon');
-
-const iotdata = new aws.IotData({
-  endpoint: 'my.host.tld',
-  region: 'us-east-1'
-});
 
 describe('Class IoTData', () => {
-  let getThingShadowStub, updateThingShadowStub, iotDataService;
-  before(() => {
-    // mock service
-    getThingShadowStub = stub(iotdata, 'getThingShadow');
-    getThingShadowStub.returns({
-      promise: () => {
-        return Promise.resolve(expectedResults.getThingShadowRes);
-      }
-    });
-    updateThingShadowStub = stub(iotdata, 'updateThingShadow');
-    updateThingShadowStub.returns({
-      promise: () => {
-        return Promise.resolve(expectedResults.updateThingShadowRes);
-      }
-    });
-    //start service
-    iotDataService = new IoTDataService(iotdata);
-  });
-
   describe('Method: getThingShadow', () => {
     it('should return the current thingShadow', async () => {
-      let expectedResult = JSON.parse(expectedResults.getThingShadowRes.payload);
+      let expectedResult = JSON.parse(
+        expectedResults.getThingShadowRes.payload
+      );
       let result = await iotDataService.getThingShadow('myThing');
       expect(result).to.deep.equal(expectedResult);
     });
@@ -53,7 +33,9 @@ describe('Class IoTData', () => {
       }
     });
     it('should return the current thingShadow', async () => {
-      let expectedResult = JSON.parse(expectedResults.updateThingShadowRes.payload);
+      let expectedResult = JSON.parse(
+        expectedResults.updateThingShadowRes.payload
+      );
       let result = await iotDataService.updateThingShadow('myThing', newState);
       expect(result).to.deep.equal(expectedResult);
     });

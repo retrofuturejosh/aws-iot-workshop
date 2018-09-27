@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { success, errorRes } = require('../api/services/responseBuilder');
+const { success, errorRes } = require('../../api/services/responseBuilder');
 
 describe('success response builder function', () => {
   it('Build a properly formatted 200 response', () => {

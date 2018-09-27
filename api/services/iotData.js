@@ -11,10 +11,10 @@ class IoTDataService {
     return JSON.parse(res.payload);
   }
 
-  async updateThingShadow(thingShadow, newState) {
+  async updateThingShadow(thingName, newState) {
     const params = {
       payload: newState,
-      thingName: 'myThing'
+      thingName
     };
     let res = await this.iotData.updateThingShadow(params).promise();
     return JSON.parse(res.payload);

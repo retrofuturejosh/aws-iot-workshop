@@ -3,8 +3,8 @@ const fs = require('fs');
 
 const endpoint = fs.readFileSync('./certs/host').toString('utf-8');
 const thingShadow = awsIot.thingShadow({
-  keyPath: 'certs/key.pem',
-  certPath: 'certs/cert.pem',
+  keyPath: '/lambdacerts/cloud-pem-key',
+  certPath: '/lambdacerts/cloud-pem-crt',
   caPath: 'certs/root-CA.pem',
   clientId: 'DemoClient',
   host: endpoint

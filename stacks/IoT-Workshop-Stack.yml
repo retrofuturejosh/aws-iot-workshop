@@ -13,6 +13,8 @@ Resources:
     DeletionPolicy: Retain
     Properties:
       BucketName: !Ref S3BucketName
+      VersioningConfiguration:
+        Status: Enabled
 
 # IAM Role for CodePipeline
   CodePipelineRole:
@@ -129,7 +131,7 @@ Resources:
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: IoTWorkshop
+      Name: IoT-Workshop
       ServiceRole: !GetAtt CodeBuildRole.Arn
       Artifacts:
         Name: IoTWorkshopArtifact
@@ -167,8 +169,8 @@ Resources:
               OutputArtifacts:
                 - Name: SourceCodeOutputArtifact
               Configuration:
-                S3Bucket: sohnbucket
-                S3ObjectKey: iotworkshopsource
+                S3Bucket: !Ref S3BuildBucket
+                S3ObjectKey: iotworkshopsource.zip
               RunOrder: 1
         -
           Name: Build

@@ -8,4 +8,4 @@ echo zipping package
 zip -r iotworkshopsource deltas helloWorld buildspec.yml services api
 
 echo uploading to S3
-aws s3 mv iotworkshopsource.zip s3://sohnbucket/iotworkshopsource --acl public-read
+aws s3 mv iotworkshopsource.zip s3://sohnbucket/iotworkshopsource.zip --acl public-read

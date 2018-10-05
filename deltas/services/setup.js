@@ -8,19 +8,19 @@ const { IoTService } = require('./iot');
 let iotService = new IoTService(iot);
 
 async function runSetup() {
-  let certRes = await iotService.createKeysCert();
-  let key = certRes.keyPair.PrivateKey;
-  let cert = certRes.certificatePem;
-  let certArn = certRes.certificateArn;
-  console.log('Current working directory is ', process.cwd());
+  // let certRes = await iotService.createKeysCert();
+  // let key = certRes.keyPair.PrivateKey;
+  // let cert = certRes.certificatePem;
+  // let certArn = certRes.certificateArn;
+  // console.log('Current working directory is ', process.cwd());
   fs.mkdirSync('./certs');
-  fs.writeFileSync('./certs/key.pem', key);
-  fs.writeFileSync('./certs/cert.pem', cert);
-  let policy = await iotService.createPolicy();
-  let attachPolicy = await iotService.attachPrincipalPolicy(
-    policy.policyName,
-    certArn
-  );
+  // fs.writeFileSync('./certs/key.pem', key);
+  // fs.writeFileSync('./certs/cert.pem', cert);
+  // let policy = await iotService.createPolicy();
+  // let attachPolicy = await iotService.attachPrincipalPolicy(
+  //   policy.policyName,
+  //   certArn
+  // );
   let rootCA = await getCARoot();
   fs.writeFileSync('./certs/root-CA.pem', rootCA);
   let hostSetup = await iotService.getIoTEndpoint();

@@ -12,3 +12,8 @@ npm install --production
 aws cloudformation package --t sam-template.yml --s3-bucket $BUCKET --output-template-file sam-output.yml
 
 aws cloudformation deploy --template-file sam-output.yml --stack-name delta-lambda --capabilities CAPABILITY_IAM
+
+rm certs/host
+rm certs/root-CA.pem
+rm -rf certs
+rm sam-output.yml
